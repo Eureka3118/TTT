@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="form-container">
+    <a href="{% url 'blog:post_list' %}" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+
+    <div class="form-header">
+        <h1>Create New Post</h1>
+        <p>Share your travel story with the community</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="post-form">
+        {% csrf_token %}
+        
+        <!-- Image Upload Section -->
+        <div class="image-upload-section">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" name="image" id="imageInput" accept="image/*" class="file-input">
+                <div class="upload-content">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag & drop your cover image or click to browse</p>
+                    <span class="file-info"></span>
+                </div>
+                <div class="image-preview" id="imagePreview"></div>
+            </div>
+        </div>
+
+        <!-- Post Details -->
+        <div class="form-group">
+            <label for="id_title">Title</label>
+            <input type="text" name="title" id="id_title" required 
+                   placeholder="Enter your post title">
+        </div>
+
+        <div class="form-group">
+            <label for="id_content">Content</label>
+            <textarea name="content" id="id_content" required 
+                      placeholder="Write your story here..."></textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                Publish Post
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 120px auto 40px;
+        padding: 0 20px;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .form-header h1 {
+        font-size: 2.5rem;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .form-header p {
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    .post-form {
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    /* Image Upload */
+    .image-upload-section {
+        margin-bottom: 30px;
+    }
+
+    .upload-area {
+        position: relative;
+        border: 2px dashed #e9ecef;
+        border-radius: 15px;
+        padding: 40px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .upload-area:hover {
+        border-color: #ff6b6b;
+        background-color: #fff8f8;
+    }
+
+    .upload-content {
+        pointer-events: none;
+    }
+
+    .upload-content i {
+        font-size: 3rem;
+        color: #ff6b6b;
+        margin-bottom: 15px;
+    }
+
+    .upload-content p {
+        color: #666;
+        margin-bottom: 10px;
+    }
+
+    .file-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .image-preview {
+        margin-top: 20px;
+    }
+
+    .image-preview img {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 10px;
+    }
+
+    /* Form Groups */
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    label {
+        display: block;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    textarea {
+        min-height: 200px;
+        resize: vertical;
+    }
+
+    input[type="text"]:focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        border-color: #ff6b6b;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 40px;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-secondary {
+        background: #f8f9fa;
+        color: #666;
+    }
+
+    .btn-primary:hover {
+        background: #ff5252;
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-size: 1rem;
+        text-decoration: none;
+        background: #f8f9fa;
+        color: #666;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+    }
+
+    .btn-back:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .post-form {
+            padding: 20px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Image Preview
+    const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const uploadArea = document.getElementById('uploadArea');
+
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                uploadArea.querySelector('.file-info').textContent = file.name;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#ff6b6b';
+        uploadArea.style.backgroundColor = '#fff8f8';
+    });
+
+    uploadArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#e9ecef';
+        uploadArea.style.backgroundColor = 'white';
+    });
+});
+</script>
+{% endblock %}

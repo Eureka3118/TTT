@@ -1,0 +1,54 @@
+.dashboard-container {
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.card-header {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.badge-info {
+    background: #3498db;
+    color: white;
+}
+
+/* Chart customization */
+.nvd3 text {
+    font-family: inherit;
+}
+
+.nvd3 .nv-axis path {
+    stroke: #e9ecef;
+}
+
+.nvd3 .nv-axis .tick line {
+    stroke: #e9ecef;
+} 

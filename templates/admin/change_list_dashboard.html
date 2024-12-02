@@ -1,0 +1,30 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Gallery Statistics</h3>
+                </div>
+                <div class="card-body">
+                    {{ gallery_chart.as_html }}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Image Distribution</h3>
+                </div>
+                <div class="card-body">
+                    {{ image_chart.as_html }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{ block.super }}
+{% endblock %} 

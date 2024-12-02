@@ -1,0 +1,128 @@
+<div class="comment" id="comment-{{ comment.id }}">
+    <div class="comment-header">
+        <div class="comment-author">
+            <i class="fas fa-user-circle" aria-hidden="true"></i>
+            <span>{{ comment.author.username }}</span>
+        </div>
+        <div class="comment-date">
+            <i class="far fa-clock" aria-hidden="true"></i>
+            <span>{{ comment.created_at|timesince }} ago</span>
+        </div>
+    </div>
+    <div class="comment-content">
+        {{ comment.content|linebreaks }}
+    </div>
+    {% if user == comment.author %}
+        <div class="comment-actions">
+            <button 
+                onclick="deleteComment({{ comment.id }})" 
+                class="btn-delete-comment" 
+                aria-label="Delete comment">
+                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                <span>Delete</span>
+            </button>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+/* General Comment Styles */
+.comment {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.comment:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Header Styles */
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.comment-author, .comment-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+}
+
+.comment-author i,
+.comment-date i {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.comment-date {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+/* Content Styles */
+.comment-content {
+    color: #333;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 12px 0;
+}
+
+/* Actions Styles */
+.comment-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+}
+
+.btn-delete-comment {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    background-color: #fee2e2;
+    color: #ef4444;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-delete-comment:hover {
+    background-color: #fecaca;
+    transform: translateY(-1px);
+}
+
+.btn-delete-comment i {
+    font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .comment-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .comment {
+        padding: 15px;
+    }
+
+    .btn-delete-comment {
+        font-size: 0.85rem;
+        padding: 6px 12px;
+    }
+}
+</style>

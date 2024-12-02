@@ -1,0 +1,626 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<div class="container">
+    {% if selected_category %}
+    <!-- Enhanced Hero Section -->
+    <div class="category-hero" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{{ selected_category.image.url }}')">
+        <div class="hero-content">
+           
+            <h1>{{ selected_category.name }}</h1>
+            <p class="hero-description">{{ selected_category.description }}</p>
+        </div>
+    </div>
+
+    <!-- Enhanced Places Grid -->
+    <div class="selected-category-content">
+        <div class="places-grid">
+            {% for place in places %}
+            <div class="place-card">
+                <div class="place-image">
+                    <img src="{{ place.image.url }}" alt="{{ place.name }}">
+                    <div class="place-overlay">
+                        <div class="place-quick-info">
+                            {% if place.duration %}
+                            <span class="quick-info-item">
+                                <i class="far fa-clock"></i> {{ place.duration }}
+                            </span>
+                            {% endif %}
+                            {% if place.price %}
+                            <span class="quick-info-item">
+                                <i class="fas fa-tag"></i> {{ place.price }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="place-details">
+                    <h2>{{ place.name }}</h2>
+                    <div class="place-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>{{ place.location }}</span>
+                    </div>
+                    <p class="place-description">{{ place.description|truncatewords:25 }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <a href="{% url 'place_list' %}" class="back-to-categories">
+            <i class="fas fa-arrow-left"></i> Back to All Categories
+        </a>
+    </div>
+
+    {% else %}
+    <!-- Categories Overview -->
+    <div class="categories-overview">
+        <!-- Hero Section with Parallax Effect -->
+        <section class="hero-section">
+            <div class="hero-background"></div>
+            <div class="hero-content">
+                <h1>Explore Amazing Destinations</h1>
+                <p>Discover unique places and unforgettable experiences across different categories</p>
+            </div>
+        </section>
+
+        <!-- Add this new section -->
+        <section class="categories-intro">
+            <h2>Browse Categories</h2>
+            <p>Select from our curated collection of destination categories</p>
+        </section>
+
+        <div class="categories-grid">
+            {% for category in categories %}
+            <a href="{% url 'place_list' %}?category={{ category.id }}" class="category-card">
+                <div class="category-image">
+                    <img src="{{ category.image.url }}" alt="{{ category.name }}">
+                    <div class="category-overlay"></div>
+                </div>
+                <div class="category-content">
+                    <h2 class="category-title">{{ category.name }}</h2>
+                    <p class="category-description">{{ category.description }}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if places %}
+    <!-- Places Grid when accessed via place_by_category -->
+    <div class="places-grid">
+        {% for place in places %}
+        <div class="place-card">
+            <div class="place-image">
+                <img src="{{ place.image.url }}" alt="{{ place.name }}">
+            </div>
+            <div class="place-details">
+                <h2>{{ place.name }}</h2>
+                <div class="place-info">
+                    <div class="info-item">
+                        <i class="location-icon">📍</i>
+                        <span>{{ place.location }}</span>
+                    </div>
+                    <p class="place-description">{{ place.description }}</p>
+                    <div class="place-features">
+                        {% if place.duration %}
+                        <span class="feature">
+                            <i class="time-icon">⏱️</i> {{ place.duration }}
+                        </span>
+                        {% endif %}
+                        {% if place.price %}
+                        <span class="feature">
+                            <i class="price-icon">💰</i> {{ place.price }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
+
+<style>
+    /* Root level fixes */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html, body {
+        overflow-x: hidden;
+        width: 100%;
+        position: relative;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Container fixes */
+    .container {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    .categories-overview {
+        width: 100%;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    /* Hero Section with Parallax Effect - Single Declaration */
+    .hero-section {
+        position: relative;
+        height: 100vh;
+        width: 100%;        /* Change from 100vw to 100% */
+        overflow: hidden;
+        margin: 0;
+    }
+
+    .hero-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('{% static "images/destination.jpg" %}') center/cover no-repeat;
+        transform-origin: center;
+        will-change: transform;
+        z-index: -1;
+    }
+
+    .hero-content {
+        position: relative;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: white;
+        padding: 0 20px;
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-content h1 {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .hero-description {
+        font-size: 1.2rem;
+        line-height: 1.6;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        padding: 0 20px 80px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .category-card {
+        position: relative;
+        height: 300px;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+        text-decoration: none;
+        color: white;
+    }
+
+    .category-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .category-image {
+        height: 100%;
+        position: relative;
+    }
+
+    .category-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .category-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.7));
+    }
+
+    .category-content {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 20px;
+        z-index: 1;
+    }
+
+    .places-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        padding: 20px;
+    }
+
+    .place-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .place-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .place-image {
+        height: 200px;
+        overflow: hidden;
+    }
+
+    .place-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .place-card:hover .place-image img {
+        transform: scale(1.1);
+    }
+
+    .place-details {
+        padding: 20px;
+    }
+
+    .place-details h2 {
+        font-size: 1.5rem;
+        margin: 0 0 15px 0;
+        color: #333;
+    }
+
+    .place-info {
+        color: #666;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .info-item i {
+        margin-right: 8px;
+    }
+
+    .place-description {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin: 15px 0;
+    }
+
+    .place-features {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .feature {
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .feature i {
+        margin-right: 5px;
+    }
+
+    .back-to-categories {
+        display: inline-flex;
+        align-items: center;
+        margin: 30px 20px;
+        padding: 12px 25px;
+        background-color: #f8f9fa;
+        color: #333;
+        text-decoration: none;
+        border-radius: 25px;
+        transition: background-color 0.3s ease;
+    }
+
+    .back-icon {
+        margin-right: 8px;
+    }
+
+    .back-to-categories:hover {
+        background-color: #e9ecef;
+    }
+
+    @media (max-width: 768px) {
+        .hero-content h1 {
+            font-size: 2.5rem;
+        }
+
+        .places-grid {
+            grid-template-columns: 1fr;
+            padding: 10px;
+        }
+
+        .place-card {
+            margin: 0 10px;
+        }
+
+        .categories-grid {
+            grid-template-columns: 1fr;
+            padding: 10px;
+        }
+
+        .category-card {
+            height: 250px;
+        }
+    }
+
+    /* Hero Section with Parallax Effect */
+    .hero-section {
+        position: relative;
+        height: 100vh;
+        width: 100%;        /* Change from 100vw to 100% */
+        overflow: hidden;
+        margin: 0;
+    }
+
+    .hero-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('{% static "images/destination.jpg" %}') center/cover no-repeat;
+        transform-origin: center;
+        will-change: transform;
+        z-index: -1;
+    }
+
+    .hero-content {
+        position: relative;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: white;
+        padding: 0 20px;
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-content h1 {
+        font-size: 4rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .hero-content p {
+        font-size: 1.5rem;
+        margin-bottom: 30px;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease 0.2s forwards;
+    }
+
+    /* Animation */
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Parallax Scroll Effect */
+    @media (min-width: 768px) {
+        .hero-background {
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    }
+
+    /* Add spacing section styles */
+    .categories-intro {
+        text-align: center;
+        padding: 80px 20px;
+        background-color: #f8f9fa;  /* Light gray background */
+        margin-bottom: 40px;
+    }
+
+    .categories-intro h2 {
+        font-size: 2.5rem;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .categories-intro p {
+        font-size: 1.2rem;
+        color: #666;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Enhanced Category Hero Styles */
+    .category-hero {
+        height: 50vh;
+        background-position: center;
+        background-size: cover;
+        position: relative;
+        margin-top: -20px;
+    }
+
+    .category-hero .hero-content {
+        background: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.7));
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    
+
+    .category-hero h1 {
+        font-size: 3.5rem;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .hero-description {
+        max-width: 800px;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.2rem;
+        line-height: 1.6;
+    }
+
+    /* Enhanced Places Grid Styles */
+    .selected-category-content {
+        max-width: 1200px;
+        margin: -50px auto 0;
+        position: relative;
+        padding: 0 20px;
+    }
+
+    .places-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .place-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .place-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+
+    .place-image {
+        height: 220px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .place-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .place-card:hover .place-image img {
+        transform: scale(1.1);
+    }
+
+    .place-details {
+        padding: 25px;
+    }
+
+    .place-details h2 {
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .place-location {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #666;
+        margin-bottom: 15px;
+    }
+
+    .place-location i {
+        color: #ff4757;
+    }
+
+    .place-description {
+        color: #666;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    .back-to-categories {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 28px;
+        background: white;
+        color: #333;
+        text-decoration: none;
+        border-radius: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        margin: 30px 0;
+        font-weight: 500;
+    }
+
+    .back-to-categories:hover {
+        transform: translateX(-5px);
+        background: #f8f9fa;
+        color: #007bff;
+    }
+
+    .back-to-categories i {
+        transition: transform 0.3s ease;
+    }
+
+    .back-to-categories:hover i {
+        transform: translateX(-5px);
+    }
+
+    @media (max-width: 768px) {
+        .category-hero {
+            height: 40vh;
+        }
+        
+        .category-hero h1 {
+            font-size: 2.5rem;
+        }
+        
+        .hero-description {
+            font-size: 1rem;
+        }
+        
+        .places-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+            padding: 0 15px;
+        }
+    }
+</style>
+{% endblock %}

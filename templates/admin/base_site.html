@@ -1,0 +1,146 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+<style>
+    :root {
+        --primary: #2c3e50;          /* Dark blue-gray */
+        --secondary: #7f8c8d;        /* Medium gray */
+        --accent: #34495e;           /* Darker blue-gray */
+        --primary-fg: #ecf0f1;       /* Light gray-white */
+        --link-color: #3498db;       /* Subtle blue for links */
+        --link-hover: #2980b9;       /* Darker blue for hover */
+    }
+
+    /* Header */
+    #header {
+        background: var(--primary);
+        color: var(--primary-fg);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Navigation */
+    .module h2, .module caption, .inline-group h2 {
+        background: var(--primary);
+        color: var(--primary-fg);
+        padding: 12px;
+        border-radius: 4px 4px 0 0;
+    }
+
+    /* Links */
+    a:link, a:visited {
+        color: var(--link-color);
+    }
+
+    a:hover {
+        color: var(--link-hover);
+    }
+
+    /* Buttons */
+    .button, input[type=submit], input[type=button], .submit-row input, a.button {
+        background: var(--primary);
+        color: var(--primary-fg);
+        border-radius: 4px;
+        padding: 10px 15px;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .button:hover, input[type=submit]:hover, input[type=button]:hover {
+        background: var(--accent);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .button.default, input[type=submit].default {
+        background: var(--accent);
+    }
+
+    /* List View */
+    #changelist-form .results {
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    #changelist table thead th {
+        background: #f5f6fa;
+    }
+
+    /* Dashboard Modules */
+    .dashboard .module {
+        background: white;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+
+    /* Messages */
+    .messagelist li {
+        padding: 12px 15px;
+        margin: 0 0 10px 0;
+        border-radius: 4px;
+    }
+
+    .messagelist li.success {
+        background: #27ae60;
+        color: white;
+    }
+
+    .messagelist li.error {
+        background: #c0392b;
+        color: white;
+    }
+
+    .messagelist li.warning {
+        background: #f39c12;
+        color: white;
+    }
+
+    /* Form Elements */
+    select, textarea, input[type="text"], 
+    input[type="password"], input[type="datetime"], 
+    input[type="datetime-local"], input[type="date"], 
+    input[type="month"], input[type="time"], 
+    input[type="week"], input[type="number"], 
+    input[type="email"], input[type="url"], 
+    input[type="search"], input[type="tel"], 
+    input[type="color"] {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 8px;
+        transition: border-color 0.3s ease;
+    }
+
+    select:focus, textarea:focus, input[type="text"]:focus,
+    input[type="password"]:focus, input[type="datetime"]:focus,
+    input[type="datetime-local"]:focus, input[type="date"]:focus,
+    input[type="month"]:focus, input[type="time"]:focus,
+    input[type="week"]:focus, input[type="number"]:focus,
+    input[type="email"]:focus, input[type="url"]:focus,
+    input[type="search"]:focus, input[type="tel"]:focus,
+    input[type="color"]:focus {
+        border-color: var(--accent);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(52, 73, 94, 0.1);
+    }
+
+    /* Breadcrumbs */
+    .breadcrumbs {
+        background: #f5f6fa;
+        padding: 15px;
+        border-radius: 4px;
+        margin: -15px -15px 15px -15px;
+    }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        {{ site_header|default:_('Site Administration') }}
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

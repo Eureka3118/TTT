@@ -1,0 +1,780 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="page-wrapper">
+    <!-- Left sidebar - Profile (Keep this) -->
+    <div class="sidebar-left">
+        <div class="profile-card">
+            {% if user.is_authenticated %}
+                <a href="{% url 'userapp:profile' user.username %}" class="profile-card-link">
+                    <div class="profile-image">
+                        {% if user.profile.profile_image %}
+                            <img src="{{ user.profile.profile_image.url }}" alt="{{ user.username }}'s avatar">
+                        {% else %}
+                            <div class="default-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="profile-info">
+                        <h3>{{ user.username }}</h3>
+                        <p>{{ user.email }}</p>
+                    </div>
+                </a>
+                <div class="profile-actions">
+                    <a href="{% url 'blog:post_create' %}" class="create-post-btn-profile">
+                        <i class="fas fa-plus"></i>
+                        Create Post
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <div class="posts-feed">
+            {% if posts %}
+                {% for post in posts %}
+                    <div class="post-card">
+                        <div class="post-header">
+                            <div class="author-info">
+                                <div class="author-avatar">
+                                    <a href="{% url 'userapp:profile' post.author.username %}" class="profile-link">
+                                        {% if post.author.profile.profile_image %}
+                                            <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}'s avatar">
+                                        {% else %}
+                                            <div class="default-avatar">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                        {% endif %}
+                                    </a>
+                                </div>
+                                <div class="post-meta">
+                                    <span class="author-name">{{ post.author.username }}</span>
+                                    <span class="post-time">
+                                        <i class="fas fa-clock"></i>
+                                        {{ post.created_at|timesince }} ago
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            <a href="{% url 'blog:post_detail' post.pk %}" class="post-title">
+                                {{ post.title }}
+                            </a>
+                            <p class="post-text">{{ post.content|truncatewords:50 }}</p>
+                            {% if post.image %}
+                                <div class="post-image">
+                                    <img src="{{ post.image.url }}" alt="{{ post.title }}">
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-results">
+                    {% if request.GET.search %}
+                        <div class="no-results-content">
+                            <i class="fas fa-search-minus"></i>
+                            <h3>No results found for "{{ request.GET.search }}"</h3>
+                            <p>Try different keywords or check your spelling</p>
+                            <a href="{% url 'blog:post_list' %}" class="back-to-posts">Back to all posts</a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Right sidebar - Features with search -->
+    <div class="sidebar-right">
+        <div class="features-card">
+            <!-- Search bar -->
+            <div class="search-container">
+                <form action="{% url 'blog:post_list' %}" method="GET" class="search-form">
+                    <input type="text" 
+                           name="search" 
+                           placeholder="Search posts..." 
+                           class="search-input"
+                           value="{{ request.GET.search|default:'' }}">
+                    
+                </form>
+            </div>
+            
+            <!-- Sorting options -->
+            <div class="sort-options">
+                <h4>Sort By</h4>
+                <ul>
+                    <li><a href="?sort=recent" class="sort-link {% if sort_by == 'recent' %}active{% endif %}">Recent</a></li>
+                    <li><a href="?sort=oldest" class="sort-link {% if sort_by == 'oldest' %}active{% endif %}">Oldest</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .page-wrapper {
+        display: grid;
+        grid-template-columns: 250px 1fr 200px;
+        gap: 25px;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        margin-top: 100px;
+        background: #f0f2f5;
+        position: relative;
+        z-index: 1;
+    }
+
+    .sidebar-left {
+        width: 250px;
+        height: fit-content;
+    }
+
+    .profile-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.2s ease;
+    }
+
+    .profile-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-image {
+        width: 90px;
+        height: 90px;
+        margin: 0 auto 15px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: #f3f4f6;
+    }
+
+    .profile-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .profile-image .default-avatar {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f3f4f6;
+    }
+
+    .profile-image .default-avatar i {
+        font-size: 40px;
+        color: #9ca3af;
+    }
+
+    .profile-info {
+        text-align: center;
+    }
+
+    .profile-info h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .profile-info p {
+        margin: 8px 0 0;
+        font-size: 14px;
+        color: #65676b;
+    }
+
+    .features-section {
+        width: 300px;
+        margin-left: auto;
+    }
+
+    .features-card {
+        background: white;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-container {
+        margin-bottom: 20px;
+        padding: 0 0 15px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        width: 100%;
+    }
+
+    .search-form {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .search-input {
+        flex: 1;
+        min-width: 175px;
+        padding: 1px 20px;
+        border: 1px solid #e4e6eb;
+        border-radius: 20px;
+        font-size: 14px;
+        background: #f0f2f5;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #1877f2;
+        background: white;
+    }
+
+    .search-submit {
+        padding: 12px 24px;
+        background: #1877f2;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        font-weight: 500;
+    }
+
+    .search-submit:hover {
+        background: #1664d9;
+    }
+
+    .sort-options h4 {
+        margin: 0 0 15px 0;
+        font-size: 16px;
+        color: #1a1a1a;
+        font-weight: 600;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f2f5;
+    }
+
+    .sort-options ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sort-options li {
+        margin-bottom: 8px;
+    }
+
+    .sort-link {
+        display: block;
+        padding: 5px 15px;
+        color: #65676b;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        font-size: 14px;
+    }
+
+    .sort-link:hover {
+        background-color: #f0f2f5;
+        color: #1877f2;
+        transform: translateX(5px);
+    }
+
+    .sort-link.active {
+        background-color: #e7f3ff;
+        color: #1877f2;
+        font-weight: 500;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 992px) {
+        .page-wrapper {
+            grid-template-columns: 1fr;
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .sidebar-left, .features-section {
+            display: none;
+        }
+
+        .features-section {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    }
+
+    /* Remove hero-section styles and add new header styles */
+    .header-section {
+        position: sticky;
+        top:75px;
+        background: white;
+        padding: 8px 16px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        z-index: 100;
+        margin-bottom: 16px;
+        margin-left: auto;
+        width: 100%;
+    }
+
+    .header-content {
+        max-width: 680px;
+        margin-left: auto;
+        margin-right: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .search-container {
+        flex: 1;
+    }
+
+    .search-container form {
+        display: flex;
+        gap: 8px;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 6px 14px;
+        border: none;
+        border-radius: 20px;
+        font-size: 14px;
+        background: rgba(255, 255, 255, 0.5); /* Semi-transparent white */
+    }
+
+    .search-input:focus {
+        background: white;
+        outline: none;
+    }
+
+    .search-btn {
+        background: rgba(24, 119, 242, 0.8);
+        transition: background-color 0.2s ease;
+    }
+
+    .search-btn:hover {
+        background: #1877f2;
+    }
+
+    .create-post-btn {
+        background: #1877f2;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 6px 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        text-decoration: none;
+        transition: background-color 0.2s;
+        white-space: nowrap;
+    }
+
+    .create-post-btn:hover {
+        background: #1664d9;
+        color: white;
+    }
+
+    /* Posts Feed */
+    .posts-feed {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .post-card {
+        background: white;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: none;
+        position: relative;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    .post-header {
+        padding: 16px 20px;
+        background: #fafbfc;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px 12px 0 0;
+    }
+
+    .author-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .author-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: #f3f4f6;
+    }
+
+    .author-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .default-avatar {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f3f4f6;
+    }
+
+    .default-avatar i {
+        font-size: 24px;
+        color: #9ca3af;
+    }
+
+    .post-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .author-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1a1a1a;
+        text-decoration: none;
+    }
+
+    .author-name:hover {
+        color: #1877f2;
+    }
+
+    .post-time {
+        font-size: 13px;
+        color: #65676b;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .post-time i {
+        font-size: 12px;
+        color: #8e8e8e;
+    }
+
+    .post-content {
+        padding: 20px;
+        background: white;
+        border-radius: 0 0 12px 12px;
+    }
+
+    .post-title {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #1a1a1a;
+        text-decoration: none;
+        line-height: 1.3;
+    }
+
+    .post-title:hover {
+        color: #1877f2;
+    }
+
+    .post-text {
+        color: #444;
+        margin-bottom: 20px;
+    }
+
+    .post-image {
+        margin: 0 -20px;
+    }
+
+    .post-image img {
+        width: 100%;
+        max-height: 500px;
+        object-fit: cover;
+    }
+
+    .post-footer {
+        padding: 15px 20px;
+        border-top: 1px solid #e4e6eb;
+        background: #f8f9fa;
+        border-radius: 0 0 15px 15px;
+    }
+
+    .interaction-stats {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .tags {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .tag {
+        color: #1877f2;
+        font-size: 14px;
+    }
+
+    /* Mobile Optimization */
+    @media (max-width: 768px) {
+        .header-section {
+            padding: 8px;
+        }
+        
+        .header-content {
+            flex-direction: row;
+        }
+        
+        .create-post-btn span {
+            display: none;
+        }
+        
+        .create-post-btn {
+            padding: 6px;
+            width: 32px;
+            height: 32px;
+        }
+    }
+
+    .sidebar-left, .sidebar-right {
+        position: sticky;
+        top: 120px;
+        height: fit-content;
+    }
+
+    .posts-feed > .post-card + .post-card {
+        margin-top: 10px;
+    }
+
+    .author-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: #f3f4f6;
+    }
+
+    .profile-link {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    .profile-link:hover {
+        opacity: 0.9;
+    }
+
+    .author-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.2s ease;
+    }
+
+    .profile-link:hover img {
+        transform: scale(1.05);
+    }
+
+    .profile-card-link {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s ease;
+    }
+
+    .profile-card-link:hover {
+        transform: translateY(-2px);
+    }
+
+    .navbar .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .navbar .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: white;
+        min-width: 220px;
+        padding: 8px 0;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        display: none;
+        z-index: 1001;
+    }
+
+    .navbar .dropdown:hover .dropdown-menu {
+        display: block;
+    }
+
+    .navbar .dropdown-item {
+        padding: 12px 20px;
+        color: #333 !important;
+        text-decoration: none;
+        display: block;
+        font-size: 0.95rem;
+        transition: background-color 0.2s ease;
+    }
+
+    .navbar .dropdown-item:hover {
+        background-color: #f8f9fa;
+        color: #007bff !important;
+    }
+
+    .navbar {
+        z-index: 1002;
+    }
+
+    .profile-actions {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .create-post-btn-profile {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 8px 16px;
+        background: #1877f2;
+        color: white;
+        border-radius: 20px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background-color 0.2s ease;
+    }
+
+    .create-post-btn-profile:hover {
+        background: #1664d9;
+        color: white;
+    }
+
+    .search-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        color: #666;
+        z-index: 1;
+    }
+
+    .search-input {
+        flex: 1;
+        width: 100%;
+        padding: 10px 40px;
+        border: 1px solid #e4e6eb;
+        border-radius: 20px;
+        font-size: 14px;
+        background: #f0f2f5;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #1877f2;
+        background: white;
+        box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+    }
+
+    .search-submit {
+        padding: 8px 20px;
+        background: #1877f2;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .search-submit:hover {
+        background: #1664d9;
+    }
+
+    /* Add these styles for the no results message */
+    .no-results {
+        background: white;
+        border-radius: 12px;
+        padding: 40px 20px;
+        text-align: center;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    .no-results-content {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .no-results i {
+        font-size: 48px;
+        color: #1877f2;
+        margin-bottom: 20px;
+    }
+
+    .no-results h3 {
+        font-size: 20px;
+        color: #1a1a1a;
+        margin-bottom: 10px;
+    }
+
+    .no-results p {
+        color: #65676b;
+        margin-bottom: 20px;
+    }
+
+    .back-to-posts {
+        display: inline-block;
+        padding: 8px 20px;
+        background: #1877f2;
+        color: white;
+        text-decoration: none;
+        border-radius: 20px;
+        transition: background-color 0.2s ease;
+    }
+
+    .back-to-posts:hover {
+        background: #1664d9;
+        color: white;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize ratings
+    document.querySelectorAll('.stars').forEach(starsEl => {
+        const rating = parseFloat(starsEl.dataset.rating) || 0;
+        const stars = starsEl.querySelectorAll('.fa-star');
+        
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.style.color = '#ffd700';
+            } else {
+                star.style.color = '#e4e5e9';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

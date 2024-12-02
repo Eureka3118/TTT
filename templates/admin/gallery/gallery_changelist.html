@@ -1,0 +1,61 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Gallery Statistics</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="galleryChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Image Distribution</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="imageChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gallery Chart
+    var galleryCtx = document.getElementById('galleryChart').getContext('2d');
+    var galleryData = {{ gallery_stats|safe }};
+    new Chart(galleryCtx, {
+        type: 'line',
+        data: galleryData,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Image Chart
+    var imageCtx = document.getElementById('imageChart').getContext('2d');
+    var imageData = {{ image_stats|safe }};
+    new Chart(imageCtx, {
+        type: 'pie',
+        data: imageData,
+        options: {
+            responsive: true
+        }
+    });
+</script>
+
+{{ block.super }}
+{% endblock %} 

@@ -1,0 +1,417 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-cover-wrapper">
+            <div class="profile-cover"></div>
+            <div class="profile-avatar">
+                {% if profile_user.profile.profile_image %}
+                    <img src="{{ profile_user.profile.profile_image.url }}" alt="{{ profile_user.username }}'s avatar">
+                {% else %}
+                    <div class="default-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="profile-info-header">
+            <h1 class="profile-name">{{ profile_user.username }}</h1>
+            
+            <!-- Display user info or success message -->
+            {% if messages %}
+                <div class="profile-message">
+                    {% for message in messages %}
+                        <p class="message {{ message.tags }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% if profile_user.profile.location %}
+                <div class="profile-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>{{ profile_user.profile.location }}</span>
+                </div>
+            {% endif %}
+            
+            {% if profile_user.username == request.user.username %}
+                <div class="profile-actions">
+                    <a href="{% url 'userapp:edit_profile' username=profile_user.username %}" class="action-btn edit-btn">
+                        <i class="fas fa-edit"></i>
+                        Manage Profile
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="profile-content">
+        {% if profile_user.profile.bio %}
+            <div class="profile-section">
+                <h2>About</h2>
+                <p class="bio">{{ profile_user.profile.bio }}</p>
+            </div>
+        {% endif %}
+
+        <div class="profile-section">
+            <h2>My Galleries</h2>
+            <div class="gallery-grid">
+                {% for gallery in galleries %}
+                    <div class="gallery-card">
+                        <div class="gallery-image">
+                            {% if gallery.cover_image %}
+                                <img src="{{ gallery.cover_image.url }}" alt="{{ gallery.title }}">
+                            {% else %}
+                                <div class="no-image">
+                                    <i class="fas fa-images"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="gallery-details">
+                            <h3>{{ gallery.title }}</h3>
+                            <p>{{ gallery.description|truncatechars:100 }}</p>
+                            <div class="gallery-meta">
+                                <span><i class="fas fa-calendar"></i> {{ gallery.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            <a href="{% url 'gallery:gallery_detail' gallery.id %}" class="view-gallery">View Gallery</a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="no-galleries">
+                        <i class="fas fa-images"></i>
+                        <p>No galleries posted yet</p>
+                        {% if profile_user.username == request.user.username %}
+                            <a href="{% url 'gallery:gallery_create' %}" class="create-gallery-btn">
+                                Create Your First Gallery
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-container {
+        max-width: 1200px;
+        margin: 83px auto 40px;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    .profile-cover-wrapper {
+        position: relative;
+        height: 300px;
+    }
+
+    .profile-cover {
+        height: 100%;
+        background: linear-gradient(135deg,#2980b9 0%, #a855f7 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .profile-cover::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 30%;
+        background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+    }
+
+    .profile-avatar {
+        position: absolute;
+        bottom: -60px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+    }
+
+    .profile-avatar img,
+    .default-avatar {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        border: 6px solid white;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        background: white;
+        object-fit: cover;
+    }
+
+    .default-avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f3f4f6;
+    }
+
+    .default-avatar i {
+        font-size: 80px;
+        color: #9ca3af;
+    }
+
+    .profile-info-header {
+        text-align: center;
+        padding: 70px 20px 30px;
+    }
+
+    .profile-name {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 10px;
+    }
+
+    .profile-location {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #6b7280;
+        font-size: 1.1rem;
+        margin-bottom: 25px;
+    }
+
+    .profile-actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 30px;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .edit-btn {
+        background-color: #2980b9;
+        color: white;
+    }
+
+    .logout-btn {
+        background-color: #ef4444;
+        color: white;
+    }
+
+    .edit-btn:hover, .logout-btn:hover {
+        transform: translateY(-2px);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .edit-btn:hover {
+        background-color: #4f46e5;
+    }
+
+    .logout-btn:hover {
+        background-color: #dc2626;
+    }
+
+    .profile-content {
+        padding: 40px;
+    }
+
+    .profile-section {
+        margin-bottom: 40px;
+    }
+
+    .profile-section h2 {
+        color: #1f2937;
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f3f4f6;
+    }
+
+    .bio {
+        font-size: 1.1rem;
+        line-height: 1.7;
+        color: #4b5563;
+    }
+
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+    }
+
+    .gallery-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        transition: transform 0.3s ease;
+    }
+
+    .gallery-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .gallery-image {
+        height: 200px;
+        overflow: hidden;
+    }
+
+    .gallery-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .no-image {
+        height: 100%;
+        background: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .no-image i {
+        font-size: 40px;
+        color: #9ca3af;
+    }
+
+    .gallery-details {
+        padding: 20px;
+    }
+
+    .gallery-details h3 {
+        font-size: 1.3rem;
+        color: #1f2937;
+        margin-bottom: 10px;
+    }
+
+    .gallery-details p {
+        color: #6b7280;
+        margin-bottom: 15px;
+        line-height: 1.5;
+    }
+
+    .gallery-meta {
+        display: flex;
+        gap: 15px;
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    .view-gallery {
+        display: inline-block;
+        padding: 8px 20px;
+        background: #2980b9;
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .view-gallery:hover {
+        background: #4f46e5;
+        color: white;
+    }
+
+    .no-galleries {
+        text-align: center;
+        padding: 60px 20px;
+        background: #f9fafb;
+        border-radius: 15px;
+        grid-column: 1 / -1;
+    }
+
+    .no-galleries i {
+        font-size: 60px;
+        color: #9ca3af;
+        margin-bottom: 20px;
+    }
+
+    .no-galleries p {
+        color: #4b5563;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+
+    .create-gallery-btn {
+        display: inline-block;
+        padding: 12px 30px;
+        background: #6366f1;
+        color: white;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .create-gallery-btn:hover {
+        background: #4f46e5;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .profile-container {
+            margin: 40px 20px 20px;
+        }
+
+        .profile-cover-wrapper {
+            height: 200px;
+        }
+
+        .profile-avatar img,
+        .default-avatar {
+            width: 140px;
+            height: 140px;
+        }
+
+        .profile-name {
+            font-size: 2rem;
+        }
+
+        .profile-actions {
+            flex-direction: column;
+            padding: 0 20px;
+        }
+
+        .action-btn {
+            justify-content: center;
+        }
+
+        .profile-content {
+            padding: 20px;
+        }
+
+        .gallery-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .profile-message {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #e0f7fa;
+        border-radius: 5px;
+        color: #3375ac;
+        font-size: 1rem;
+    }
+
+    .message.success {
+        background-color: #e0f7fa;
+        color: #3375ac;
+        transition: opacity 0.5s ease-out;
+    }
+</style>
+
+{% endblock %}

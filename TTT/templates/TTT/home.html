@@ -1,0 +1,1043 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<div class="page-wrapper">
+    <!-- Hero Section with Parallax Effect -->
+    <section class="hero-section">
+        <div class="hero-background"></div>
+        <div class="hero-content">
+            <h1>Discover Your Next Adventure</h1>
+            <p>Explore the most amazing places around the world</p>
+            <a href="#destinations" class="explore-btn" id="exploreBtn">
+                Explore Now
+                <i class="fas fa-arrow-down"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Destinations Section -->
+        <section class="destinations-section" id="destinations">
+            <div class="section-header">
+                <h2>Where would you like to explore?</h2>
+                <!-- <p>Let our travel specialists help you plan your perfect trip</p> -->
+            </div>
+            
+            <div class="category-nav">
+                {% for category in categories %}
+                <button class="category-btn {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                    {{ category.name }}
+                </button>
+                {% endfor %}
+            </div>
+            
+            <div class="destinations-slider-container">
+                <button class="slider-arrow prev" id="prevBtn">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                
+                <div class="destinations-slider" id="slider">
+                    {% for category in categories %}
+                    <div class="destination-card">
+                        <div class="card-image" style="background-image: url('{% if category.image %}{{ category.image.url }}{% else %}path/to/default-image.jpg{% endif %}')">
+                        </div>
+                        <div class="card-overlay">
+                            <div class="overlay-content">
+                                <span class="discover-label">Discover</span>
+                                <h3>{{ category.name }}</h3>
+                                <div class="description">
+                                    <p>{{ category.description|truncatewords:15 }}</p>
+                                </div>
+                            </div>
+                            <a href="{% url 'place_list' %}?category={{ category.id }}" class="view-all-places">
+                                View All {{ category.name }} Places
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button class="slider-arrow next" id="nextBtn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Featured Galleries -->
+        <section class="galleries-section">
+            <div class="section-header">
+                <h2>Travel Moments</h2>
+                <p>Explore our stunning collection of travel photos that inspire adventure and discovery</p>
+            </div>
+
+            <div class="galleries-grid">
+                {% for gallery in admin_galleries|slice:":6" %}
+                <div class="gallery-card">
+                    <div class="card-image">
+                        {% if gallery.cover_image %}
+                            <img src="{{ gallery.cover_image.url }}" alt="{{ gallery.title }}">
+                        {% else %}
+                            <div class="no-image">
+                                <i class="fas fa-images"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-overlay">
+                        <h3>{{ gallery.title }}</h3>
+                        <p>{{ gallery.description|truncatewords:15 }}</p>
+                        <a href="{% url 'gallery:gallery_detail' gallery.id %}" class="view-text">
+                            View Gallery <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Latest Blog Posts -->
+        <section class="blog-section">
+            <div class="section-header">
+                <h2>Travel Stories</h2>
+                <p>Latest adventures from our community</p>
+            </div>
+
+            <div class="blog-slider">
+                {% for post in latest_posts %}
+                <div class="blog-testimonial">
+                    <h3 class="blog-title">{{ post.title }}</h3>
+                    <div class="blog-meta">
+                        <span class="date"><i class="fas fa-calendar"></i> {{ post.created_at|date:"M d, Y" }}</span>
+                    
+                    </div>
+                    <p class="blog-text">{{ post.content|truncatewords:50 }}</p>
+                    <div class="testimonial-author">
+                        <div class="author-info">
+                            {% if post.author.profile.profile_image %}
+                                <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}">
+                            {% else %}
+                                <div class="author-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                            <div class="author-details">
+                                <span class="author-name">{{ post.author.username }}</span>
+                                <span class="author-role">Travel Blogger</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{% url 'blog:post_detail' post.pk %}" class="read-more">Read Full Story <i class="fas fa-arrow-right"></i></a>
+                </div>
+                {% empty %}
+                <div class="blog-testimonial">
+                    <p class="blog-text">No stories yet. Be the first to share your travel experience!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+    .page-wrapper {
+        overflow: hidden;
+    }
+
+    /* Hero Section with Parallax Effect */
+    .hero-section {
+        position: relative;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .hero-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('{% static "images/hero.jpg" %}') center/cover no-repeat;
+        transform-origin: center;
+        will-change: transform;
+        z-index: -1;
+    }
+
+    .hero-content {
+        position: relative;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: white;
+        padding: 0 20px;
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-content h1 {
+        font-size: 4rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .hero-content p {
+        font-size: 1.5rem;
+        margin-bottom: 30px;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease 0.2s forwards;
+    }
+
+    .explore-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px 40px;
+        color: white;
+        text-decoration: none;
+        font-size: 1.1rem;
+        font-weight: 500;
+        letter-spacing: 1px;
+        border: 2px solid rgba(255, 255, 255, 0.6);
+        border-radius: 50px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .explore-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.2);
+        transition: width 0.4s ease;
+        z-index: -1;
+    }
+
+    .explore-btn:hover {
+        border-color: rgba(255, 255, 255, 0.8);
+        transform: translateY(-2px);
+    }
+
+    .explore-btn:hover::before {
+        width: 100%;
+    }
+
+    .btn-text {
+        position: relative;
+        z-index: 2;
+    }
+
+    @media (max-width: 768px) {
+        .explore-btn {
+            padding: 15px 30px;
+            font-size: 1rem;
+        }
+    }
+
+    /* Main Content Sections */
+    .main-content {
+        background: white;
+        position: relative;
+        z-index: 1;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 60px;
+        padding: 0 20px;
+    }
+
+    .section-header h2 {
+        font-size: 2.5rem;
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .section-header p {
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    /* Destinations Section */
+    .destinations-section {
+        padding: 80px 0;
+        background: #fff;
+        overflow: hidden;
+    }
+
+    .destinations-slider-container {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .destinations-slider {
+        display: flex;
+        width: 100%;
+        transition: transform 0.5s ease-in-out;
+    }
+
+    .destination-card {
+        flex: 0 0 100%;
+        height: 85vh;
+        min-height: 600px;
+        position: relative;
+    }
+
+    .card-image {
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .card-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0) 100%);
+        padding: 80px;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .overlay-content {
+        max-width: 800px;
+        margin-bottom: auto;
+    }
+
+    .discover-label {
+        text-transform: uppercase;
+        font-size: 14px;
+        letter-spacing: 2px;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .card-overlay h3 {
+        font-size: 48px;
+        margin-bottom: 25px;
+        font-weight: 600;
+    }
+
+    .description p {
+        font-size: 24px;
+        line-height: 1.6;
+        opacity: 0.9;
+    }
+
+    .slider-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 60px;
+        height: 60px;
+        border: none;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.3s ease;
+    }
+
+    .slider-arrow:hover {
+        background: #fff;
+    }
+
+    .prev {
+        left: 0;
+    }
+
+    .next {
+        right: 0;
+    }
+
+    .slider-arrow i {
+        font-size: 24px;
+        color: #333;
+    }
+
+    @media (max-width: 768px) {
+        .destination-card {
+            height: 60vh;
+        }
+        
+        .card-overlay {
+            padding: 40px;
+        }
+        
+        .card-overlay h3 {
+            font-size: 32px;
+        }
+        
+        .description p {
+            font-size: 18px;
+        }
+    }
+
+    /* No Image Placeholder */
+    .no-image {
+        width: 100%;
+        height: 100%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .no-image i {
+        font-size: 3rem;
+        color: #adb5bd;
+    }
+
+    /* Galleries Section */
+    .galleries-section {
+        padding: 80px 20px;
+        background: #ffffff;
+    }
+
+    .galleries-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 350px);
+        gap: 25px;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .gallery-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease;
+        height: 100%;
+    }
+
+    .card-image {
+        width: 100%;
+        height: 100%;
+    }
+
+    .card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+
+    .card-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            to bottom,
+            transparent,
+            rgba(0, 0, 0, 0.3) 40%,
+            rgba(0, 0, 0, 0.8)
+        );
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .card-overlay h3 {
+        color: white;
+        font-size: 1.4rem;
+        margin-bottom: 10px;
+        transform: translateY(20px);
+        transition: transform 0.4s ease;
+    }
+
+    .card-overlay p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+        transform: translateY(20px);
+        transition: transform 0.4s ease 0.1s;
+    }
+
+    .view-text {
+        color: white;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        transform: translateY(20px);
+        transition: all 0.4s ease 0.2s;
+    }
+
+    .view-text i {
+        font-size: 0.9rem;
+        transition: transform 0.3s ease;
+    }
+
+    /* Hover effects */
+    .gallery-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .gallery-card:hover .card-image img {
+        transform: scale(1.1);
+    }
+
+    .gallery-card:hover .card-overlay {
+        opacity: 1;
+    }
+
+    .gallery-card:hover .card-overlay h3,
+    .gallery-card:hover .card-overlay p,
+    .gallery-card:hover .view-text {
+        transform: translateY(0);
+    }
+
+    .gallery-card:hover .view-text i {
+        transform: translateX(5px);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        .galleries-grid {
+            grid-template-rows: repeat(2, 300px);
+            gap: 20px;
+        }
+    }
+
+    @media (max-width: 992px) {
+        .galleries-grid {
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(3, 300px);
+        }
+    }
+
+    @media (max-width: 576px) {
+        .galleries-grid {
+            grid-template-columns: 1fr;
+            grid-template-rows: repeat(6, 300px);
+            gap: 15px;
+        }
+    }
+
+    /* Blog Section */
+    .blog-section {
+        padding: 100px 20px;
+        background: #f8f9fa;
+    }
+
+    .blog-slider {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .blog-testimonial {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        border: 1px solid #e2e8f0;
+        outline: 1px solid transparent;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .blog-testimonial:hover {
+        transform: translateY(-5px);
+        border-color: transparent;
+        outline: 2px solid #667eea;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .blog-testimonial::before,
+    .blog-testimonial::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #667eea;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .blog-testimonial::before {
+        top: 15px;
+        left: 15px;
+        border-right: 0;
+        border-bottom: 0;
+    }
+
+    .blog-testimonial::after {
+        bottom: 15px;
+        right: 15px;
+        border-left: 0;
+        border-top: 0;
+    }
+
+    .blog-testimonial:hover::before,
+    .blog-testimonial:hover::after {
+        opacity: 1;
+    }
+
+    .blog-title {
+        font-size: 1.5rem;
+        color: #2d3748;
+        margin: 0;
+        line-height: 1.3;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .blog-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 2px;
+        background: #667eea;
+        transition: width 0.3s ease;
+    }
+
+    .blog-testimonial:hover .blog-title::after {
+        width: 100px;
+    }
+
+    .blog-meta {
+        display: flex;
+        gap: 15px;
+        color: #718096;
+        font-size: 0.9rem;
+    }
+
+    .blog-meta span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .blog-text {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #4a5568;
+        margin: 0;
+    }
+
+    .testimonial-author {
+        margin-top: auto;
+        padding-top: 20px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .author-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .author-info img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #667eea;
+        padding: 2px;
+    }
+
+    .author-placeholder {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #a0aec0;
+        border: 2px solid #667eea;
+        padding: 2px;
+    }
+
+    .author-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .author-name {
+        font-weight: 600;
+        color: #2d3748;
+    }
+
+    .author-role {
+        font-size: 0.9rem;
+        color: #718096;
+    }
+
+    .read-more {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+    }
+
+    .read-more:hover {
+        color: #5a67d8;
+        gap: 12px;
+    }
+
+    .read-more i {
+        font-size: 0.8rem;
+    }
+
+    @media (max-width: 768px) {
+        .blog-slider {
+            grid-template-columns: 1fr;
+            padding: 10px;
+        }
+
+        .blog-testimonial {
+            padding: 20px;
+        }
+
+        .blog-title {
+            font-size: 1.3rem;
+        }
+
+        .blog-testimonial::before,
+        .blog-testimonial::after {
+            width: 15px;
+            height: 15px;
+        }
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Parallax Scroll Effect */
+    @media (min-width: 768px) {
+        .hero-background {
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    }
+
+    /* Category Navigation Styles */
+    .category-nav {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 30px;
+        
+
+        padding: 0 10px;
+        flex-wrap: wrap;
+    }
+
+    .category-btn {
+        padding: 12px 24px;
+        border: 2px solid #333;
+        background: transparent;
+        color: #333;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .category-btn:hover,
+    .category-btn.active {
+        background: #333;
+        color: #fff;
+    }
+
+    .view-all-places {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 16px 32px;
+        text-decoration: none;
+        font-size: 18px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        width: fit-content;
+        margin-top: auto;
+    }
+
+    .view-all-places:hover {
+        background: rgba(255, 255, 255, 0.2);
+        gap: 16px;
+    }
+
+    .view-all-places i {
+        transition: transform 0.3s ease;
+    }
+
+    .view-all-places:hover i {
+        transform: translateX(5px);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .card-overlay {
+            padding: 40px;
+        }
+
+        .view-all-places {
+            padding: 12px 24px;
+            font-size: 16px;
+        }
+    }
+
+    .card-overlay {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 80px;
+    }
+
+    .view-all-places {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 16px 32px;
+        text-decoration: none;
+        font-size: 18px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        width: fit-content;
+        margin-top: auto;
+    }
+
+    .view-all-places:hover {
+        background: rgba(255, 255, 255, 0.2);
+        gap: 16px;
+    }
+
+    .view-all-places i {
+        transition: transform 0.3s ease;
+    }
+
+    .view-all-places:hover i {
+        transform: translateX(5px);
+    }
+
+    /* Update existing overlay styles */
+    .overlay-content {
+        margin-bottom: auto;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .card-overlay {
+            padding: 40px;
+        }
+
+        .view-all-places {
+            padding: 12px 24px;
+            font-size: 16px;
+        }
+    }
+
+    /* Optional: Add hover effect for the button */
+    .explore-btn {
+        transition: transform 0.3s ease;
+    }
+
+    .explore-btn:hover {
+        transform: translateY(5px);
+    }
+
+    .explore-btn i {
+        transition: transform 0.3s ease;
+    }
+
+    .explore-btn:hover i {
+        animation: bounceDown 1s infinite;
+    }
+
+    @keyframes bounceDown {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(5px);
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const slider = document.getElementById('slider');
+    const slides = document.querySelectorAll('.destination-card');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const categoryBtns = document.querySelectorAll('.category-btn');
+    
+    let currentSlide = 0;
+    const totalSlides = slides.length;
+    let autoSlideInterval;
+
+    function updateSlider() {
+        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+        
+        // Update active category button
+        categoryBtns.forEach(btn => btn.classList.remove('active'));
+        categoryBtns[currentSlide].classList.add('active');
+    }
+
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        updateSlider();
+    }
+
+    function prevSlide() {
+        currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+        updateSlider();
+    }
+
+    function goToSlide(index) {
+        currentSlide = index;
+        updateSlider();
+    }
+
+    // Auto slide functionality
+    function startAutoSlide() {
+        autoSlideInterval = setInterval(nextSlide, 5000);
+    }
+
+    function resetAutoSlide() {
+        clearInterval(autoSlideInterval);
+        startAutoSlide();
+    }
+
+    // Event Listeners
+    prevBtn.addEventListener('click', () => {
+        prevSlide();
+        resetAutoSlide();
+    });
+
+    nextBtn.addEventListener('click', () => {
+        nextSlide();
+        resetAutoSlide();
+    });
+
+    categoryBtns.forEach((btn, index) => {
+        btn.addEventListener('click', () => {
+            goToSlide(index);
+            resetAutoSlide();
+        });
+    });
+
+    // Touch events
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    slider.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+        clearInterval(autoSlideInterval);
+    });
+
+    slider.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        if (touchStartX - touchEndX > 50) nextSlide();
+        if (touchEndX - touchStartX > 50) prevSlide();
+        startAutoSlide();
+    });
+
+    // Pause on hover
+    slider.addEventListener('mouseenter', () => {
+        clearInterval(autoSlideInterval);
+    });
+
+    slider.addEventListener('mouseleave', startAutoSlide);
+
+    // Keyboard navigation
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowLeft') {
+            prevSlide();
+            resetAutoSlide();
+        }
+        if (e.key === 'ArrowRight') {
+            nextSlide();
+            resetAutoSlide();
+        }
+    });
+
+    // Initialize slider
+    updateSlider();
+    startAutoSlide();
+
+    // Smooth scroll function
+    document.getElementById('exploreBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const destinationsSection = document.getElementById('destinations');
+        
+        window.scrollTo({
+            top: destinationsSection.offsetTop,
+            behavior: 'smooth'
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const exploreBtn = document.getElementById('exploreBtn');
+    
+    if (exploreBtn) {
+        exploreBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const destinationsSection = document.getElementById('destinations');
+            if (destinationsSection) {
+                destinationsSection.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

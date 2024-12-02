@@ -1,0 +1,44 @@
+/* Enhanced list view */
+.column-thumbnail_preview img,
+.column-display_cover_image img {
+    transition: transform 0.2s ease;
+}
+
+.column-thumbnail_preview img:hover,
+.column-display_cover_image img:hover {
+    transform: scale(1.5);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Better form layout */
+.form-row {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    background: #f8f9fa;
+}
+
+/* Improved inline forms */
+.inline-group {
+    padding: 10px;
+    border-radius: 4px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+/* Better action buttons */
+.actions {
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+/* Enhanced filter sidebar */
+#changelist-filter {
+    padding: 15px;
+    border-radius: 4px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+} 

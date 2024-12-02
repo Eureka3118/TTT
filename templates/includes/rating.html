@@ -1,0 +1,181 @@
+{% load static %}
+
+<div class="rating-container">
+    <div class="stars" data-rating="{{ object.average_rating|default:0 }}" data-user-rating="{{ object.user_rating }}">
+        {% for i in "12345"|make_list %}
+        <i class="far fa-star" data-value="{{ forloop.counter }}" data-object-id="{{ object.id }}" data-type="{{ object_type }}"></i>
+        {% endfor %}
+    </div>
+    <span class="rating-count">
+        {{ object.ratings.count }} rating{{ object.ratings.count|pluralize }}
+    </span>
+</div>
+
+<div id="message-container"></div>
+
+<style>
+    #message-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+
+    .message {
+        padding: 15px 25px;
+        margin: 10px;
+        border-radius: 5px;
+        color: white;
+        animation: slideIn 0.3s ease;
+        max-width: 300px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .message.success {
+        background-color: #4caf50;
+    }
+
+    .message.error {
+        background-color: #f44336;
+    }
+
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+
+    @keyframes starPop {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+
+    .rating-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .stars {
+        display: inline-flex;
+        gap: 2px;
+    }
+
+    .stars i {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 1.2rem;
+    }
+
+    .stars i.fas {
+        color: #ffd700;
+    }
+
+    .stars i.far {
+        color: #e4e5e9;
+    }
+
+    .stars:hover i.far {
+        color: #e4e5e9;
+    }
+
+    .stars:hover i.far:hover,
+    .stars:hover i.far:hover ~ i.far {
+        color: #ffd700;
+    }
+
+    .stars i.rated {
+        animation: starPop 0.3s ease;
+    }
+
+    .rating-count {
+        color: #666;
+        font-size: 0.9rem;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeRatings();
+    setupRatingEvents();
+});
+
+function initializeRatings() {
+    document.querySelectorAll('.stars').forEach(starsEl => {
+        const rating = parseFloat(starsEl.dataset.rating) || 0;
+        const userRating = parseInt(starsEl.dataset.userRating) || 0;
+        const stars = starsEl.querySelectorAll('i');
+        
+        updateStars(stars, rating);
+        
+        if (userRating) {
+            stars.forEach(star => {
+                if (parseInt(star.dataset.value) <= userRating) {
+                    star.classList.add('user-rated');
+                }
+            });
+        }
+    });
+}
+
+function setupRatingEvents() {
+    document.querySelectorAll('.stars i').forEach(star => {
+        star.addEventListener('click', handleRatingClick);
+        star.addEventListener('mouseenter', handleStarHover);
+        star.addEventListener('mouseleave', handleStarLeave);
+    });
+}
+
+async function handleRatingClick(e) {
+    e.preventDefault();
+    const star = e.target;
+    const value = star.dataset.value;
+    const objectId = star.dataset.objectId;
+    const objectType = star.dataset.type;
+    const stars = star.parentElement.querySelectorAll('i');
+
+    try {
+        const response = await fetch(`/${objectType}/rate/${objectId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ rating: value })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            updateRatingDisplay(stars, value, data);
+            showMessage('Rating updated successfully!', 'success');
+        } else {
+            throw new Error(data.error || 'Failed to update rating');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showMessage(error.message || 'Error updating rating', 'error');
+    }
+}
+
+function updateRatingDisplay(stars, value, data) {
+    updateStars(stars, data.rating);
+    
+    const countEl = stars[0].parentElement.nextElementSibling;
+    countEl.textContent = `${data.count} rating${data.count !== 1 ? 's' : ''}`;
+    
+    stars.forEach(s => {
+        if (parseInt(s.dataset.value) <= value) {
+            s.classList.add('rated');
+            setTimeout(() => s.classList.remove('rated'), 300);
+        }
+    });
+}
+
+// ... (keep the rest of your existing functions: updateStars, showMessage, getCookie) ...
+</script> 

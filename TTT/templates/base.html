@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Reset some default styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body setup */
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            padding-bottom: 100px; /* To prevent content from being hidden behind fixed footer */
+        }
+
+        /* Navbar setup */
+        .navbar {
+            background-color: transparent;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            width: 100%;
+            /* Always visible outline */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);  /* Light border for top */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);  /* Subtle shadow */
+        }
+
+        /* Update logo styles for top state */
+        .navbar .logo {
+            color: white;
+            transition: color 0.3s ease;
+            text-shadow: 0 0 1px rgba(0, 0, 0, 0.3);  /* Subtle outline */
+        }
+
+        /* Update link styles for top state */
+        .navbar a:not(.active) {
+            color: white;
+            transition: color 0.3s ease;
+            text-shadow: 0 0 1px rgba(0, 0, 0, 0.3);  /* Subtle outline */
+        }
+
+        /* Keep active links blue with slight shadow */
+        .navbar a.active {
+            color: #007bff;
+            text-shadow: 0 0 1px rgba(0, 123, 255, 0.3);  /* Blue-tinted shadow for active links */
+        }
+
+        /* Scrolled state styles */
+        .navbar.scrolled {
+            background-color: #fff;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);  /* Darker border when scrolled */
+        }
+
+        .navbar.scrolled .logo {
+            color: #333;
+        }
+
+        .navbar.scrolled a:not(.active) {
+            color: #333;
+        }
+
+        /* Add logo styles */
+        .logo {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: #007bff;
+        }
+
+        /* Update navbar-content to center the links */
+        .navbar-content {
+            flex: 1;
+            display: flex;
+            justify-content: center; /* This centers the navbar-links */
+            align-items: center;
+            position: relative; /* Add this for absolute positioning of profile */
+        }
+
+        /* Center the main navigation links */
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        /* Position profile absolutely on the right */
+        .navbar-profile {
+            position: absolute;
+            right: 0;
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar a {
+            color: #333;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 8px 12px; /* Added padding for better click area */
+        }
+
+        .navbar a:hover {
+            color: #007bff;
+        }
+
+        .navbar a.active {
+            color: #007bff;
+        }
+
+        /* Footer Section */
+        .footer {
+            background-color: #333;
+            color: #fff;
+            padding: 40px 20px;
+            margin-top: 20px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-section {
+            width: 200px;
+            margin: 20px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: #ccc;
+            text-decoration: none;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .footer-section a:hover {
+            color: #fff;
+        }
+
+        .footer-section a.active {
+            color: #007bff;
+        }
+
+        .footer-bottom {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #555;
+            text-align: center;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar-content {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                align-items: center;
+                gap: 40px;
+            }
+
+            .footer-section {
+                width: 100%;
+                text-align: center;
+            }
+
+            .footer-bottom {
+                font-size: 12px;
+            }
+        }
+
+        /* Update dropdown styles */
+        .navbar .dropdown-toggle:not(.active) {
+            color: white;
+            text-shadow: 0 0 3px rgba(0, 0, 0, 0.3);  /* Subtle outline */
+        }
+
+        .navbar.scrolled .dropdown-toggle:not(.active) {
+            color: #333;
+            text-shadow: none;
+        }
+
+        /* Remove shadow when scrolled */
+        .navbar.scrolled .logo,
+        .navbar.scrolled a:not(.active) {
+            text-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar" id="navbar">
+        <a href="/" class="logo">
+           
+            TTT
+        </a>
+        <div class="navbar-content">
+            <div class="navbar-links">
+                <a href="/" class="{% if request.path == '/' %}active{% endif %}">Home</a>
+                <a href="/destinations" class="{% if request.path == '/destinations' %}active{% endif %}">Destinations</a>
+                <a href="/blog" class="{% if request.path == '/blog' or request.path == '/blog/' %}active{% endif %}">Blog</a>
+                <a href="{% url 'gallery:gallery_list' %}" class="{% if request.path == '/gallery' or request.path == '/gallery/' %}active{% endif %}">Galleries</a>
+            </div>
+            <div class="navbar-profile">
+                {% if user.is_authenticated %}
+                <a href="{% url 'userapp:profile' user.username %}" class="{% if request.path|slice:":8" == '/profile' %}active{% endif %}">{{ user.username }}</a>
+                {% else %}
+                <a href="{% url 'userapp:login_signup' %}" class="{% if request.path|slice:":13" == '/login_signup' %}active{% endif %}">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% block content %}
+    {% endblock %}
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>Your trusted source for travel recommendations.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="/" class="{% if request.path == '/' %}active{% endif %}">Home</a></li>
+                    <li><a href="/destinations" class="{% if request.path == '/destinations' or request.path == '/destinations/' %}active{% endif %}">Destinations</a></li>
+                    <li><a href="/blog" class="{% if request.path == '/blog' or request.path == '/blog/' %}active{% endif %}">Blog</a></li>
+                    <li><a href="{% url 'gallery:gallery_list' %}" class="{% if request.path == '/gallery' or request.path == '/gallery/' %}active{% endif %}">Galleries</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p>Email: support@travelrecommendations.com</p>
+                <p>Phone: +66 80-352-3136</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Travel Recommendations. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const navbar = document.getElementById('navbar');
+        
+        // Initial check in case page is loaded scrolled down
+        if (window.scrollY > 0) {
+            navbar.classList.add('scrolled');
+        }
+
+        // Listen for scroll events
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 0) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>

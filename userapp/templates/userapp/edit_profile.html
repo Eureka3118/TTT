@@ -1,0 +1,479 @@
+    {% extends 'base.html' %}
+    {% load static %}
+    {% block content %}
+    <div class="fb-edit-profile">
+        <div class="container-fluid p-0">
+            <!-- Cover Photo Section -->
+            <div class="cover-photo">
+                <div class="cover-photo-overlay">
+                    <h1 class="profile-title">Edit Profile</h1>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="container main-content">
+                <div class="row justify-content-center">
+                    <div class="col-md-10">  <!-- Increased width -->
+                        <div class="profile-card">
+                            <!-- Profile Picture Section -->
+                            <div class="profile-picture-section text-center">
+                                <div class="profile-picture">
+                                    {% if profile.profile_image %}
+                                        <img src="{{ profile.profile_image.url }}" alt="Profile Picture" id="preview-image">
+                                    {% else %}
+                                        <div class="default-avatar" id="preview-image-container">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="camera-icon" onclick="document.getElementById('profile_image').click();">
+                                        <i class="fas fa-camera"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Add this right after the profile-picture-section div -->
+                            <div id="upload-status" class="text-center mt-2" style="display: none;">
+                                <span class="text-success">
+                                    <i class="fas fa-check-circle"></i> Profile picture updated successfully!
+                                </span>
+                            </div>
+
+                            <!-- Edit Form -->
+                            <form method="POST" enctype="multipart/form-data" class="edit-form mt-4">
+                                {% csrf_token %}
+                                <input type="file" 
+                                    id="profile_image" 
+                                    name="profile_image" 
+                                    accept="image/*" 
+                                    style="display: none;"
+                                    onchange="previewImage(this);">
+                                
+                                <div class="profile-sections">
+                                    <!-- Basic Info Section -->
+                                    <div class="edit-section">
+                                        <h3 class="section-title">
+                                            <i class="fas fa-user-circle"></i> Basic Information
+                                        </h3>
+                                        <div class="form-group">
+                                            <label for="bio">About Me</label>
+                                            <textarea name="bio" 
+                                                    id="bio"
+                                                    rows="5" 
+                                                    class="form-control" 
+                                                    placeholder="Tell us about yourself...">{{ profile.bio }}</textarea>
+                                            <small class="form-text text-muted">Share your interests, hobbies, or anything you'd like others to know about you.</small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Location Section -->
+                                    <div class="edit-section">
+                                        <h3 class="section-title">
+                                            <i class="fas fa-map-marker-alt"></i> Location
+                                        </h3>
+                                        <div class="form-group">
+                                            <label for="location">Current City</label>
+                                            <input type="text" 
+                                                name="location" 
+                                                id="location"
+                                                value="{{ profile.location }}" 
+                                                class="form-control" 
+                                                placeholder="Where are you based?">
+                                            <small class="form-text text-muted">Enter your city or region</small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Save Button - Centered -->
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col-12 text-center mb-3">
+                                                <button type="submit" class="btn btn-primary save-btn">
+                                                    <i class="fas fa-save"></i> Save Changes
+                                                </button>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="logout-container">
+                                                    <a href="{% url 'userapp:logout_confirm' %}" class="btn btn-outline-danger logout-btn">
+                                                        <i class="fas fa-sign-out-alt"></i> Logout
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const previewImage = document.getElementById('preview-image');
+                const previewContainer = document.getElementById('preview-image-container');
+                
+                if (previewImage.tagName === 'IMG') {
+                    previewImage.src = e.target.result;
+                } else {
+                    const newImage = document.createElement('img');
+                    newImage.src = e.target.result;
+                    newImage.id = 'preview-image';
+                    newImage.alt = 'Profile Picture';
+                    previewContainer.parentNode.replaceChild(newImage, previewContainer);
+                }
+
+                // Create FormData and send the image via AJAX
+                const formData = new FormData();
+                formData.append('profile_image', input.files[0]);
+                formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+                fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        // Show the success message
+                        const uploadStatus = document.getElementById('upload-status');
+                        uploadStatus.style.display = 'block';
+                        
+                        // Hide the message after 3 seconds
+                        setTimeout(() => {
+                            uploadStatus.style.display = 'none';
+                        }, 3000);
+                    }
+                });
+            };
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Add this function to handle the form submission
+    function handleSubmit(event) {
+        event.preventDefault();
+        window.location.href = '{% url "userapp:profile" username=user.username %}';
+    }
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageContainer = document.getElementById('message-container');
+            if (messageContainer) {
+                const messages = messageContainer.querySelectorAll('.alert');
+                messages.forEach(message => {
+                    console.log('Checking message:', message.textContent.trim());
+                    if (message.textContent.trim() === 'Your profile has been updated successfully!') {
+                        console.log('Message found, setting timeout to hide it.');
+                        setTimeout(() => {
+                            message.style.transition = 'opacity 0.5s ease-out';
+                            message.style.opacity = '0';
+                            setTimeout(() => {
+                                message.style.display = 'none';
+                                console.log('Message hidden.');
+                            }, 500); // Wait for the fade-out transition to complete
+                        }, 2000); // 2000 milliseconds = 2 seconds
+                    }
+                });
+            }
+        });
+    </script>
+
+    <style>
+        .fb-edit-profile {
+            background-color: #f0f2f5;
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        .cover-photo {
+            height: 250px;
+            background: linear-gradient(135deg, #1877f2, #3b82f6);
+            position: relative;
+        }
+
+        .cover-photo-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px;
+            background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+        }
+
+        .profile-title {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            margin: 0;
+        }
+
+        .main-content {
+            margin-top: -100px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .profile-picture-section {
+            margin: -100px auto 40px;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .profile-picture {
+            position: relative;
+            display: inline-block;
+            margin: 0 auto;
+        }
+
+        .profile-picture img,
+        .default-avatar {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            object-fit: cover;
+            background: #f0f2f5;
+        }
+
+        .default-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e4e6eb;
+        }
+
+        .default-avatar i {
+            font-size: 80px;
+            color: #8c939d;
+        }
+
+        .camera-icon {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: #ffffff;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .camera-icon:hover {
+            background: #f0f2f5;
+            transform: scale(1.1);
+        }
+
+        .edit-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #1877f2;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #1c1e21;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .form-control {
+            border: 2px solid #e4e6eb;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: #1877f2;
+            box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+        }
+
+        .save-btn {
+            padding: 12px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 10px;
+            background: #2980b9;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .save-btn:hover {
+            background: #166fe5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+        }
+
+        .form-text {
+            color: #65676b;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .cover-photo {
+                height: 180px;
+            }
+
+            .profile-title {
+                font-size: 24px;
+            }
+
+            .main-content {
+                margin-top: -60px;
+            }
+
+            .profile-card {
+                padding: 20px;
+                margin: 0 15px;
+            }
+
+            .profile-picture img,
+            .default-avatar {
+                width: 150px;
+                height: 150px;
+            }
+
+            .save-btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+
+        .logout-container {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+
+    .logout-btn {
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        background-color: white;
+        border: 2px solid #dc3545;
+        color: #dc3545;
+        transition: all 0.2s ease;
+    }
+
+    .logout-btn:hover {
+        background-color: #dc3545;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2);
+    }
+
+    @media (max-width: 768px) {
+        .logout-container {
+            top: 10px;
+            right: 10px;
+        }
+        
+        .logout-btn {
+            padding: 6px 15px;
+            font-size: 14px;
+        }
+    }
+
+    #upload-status {
+        animation: fadeIn 0.5s ease-in;
+        margin-top: -20px;
+        margin-bottom: 20px;
+    }
+
+    #upload-status span {
+        background-color: #d4edda;
+        color: #2e7a9c;
+        padding: 8px 16px;
+        border-radius: 20px;
+        display: inline-block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .profile-message {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #e0f7fa;
+        border-radius: 5px;
+        color: #2e7a9c;
+        font-size: 1rem;
+    }
+
+    .message.success {
+        background-color: #e0f7fa;
+        color: #2e7a9c;
+    }
+
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        transition: opacity 0.5s ease-out;
+    }
+    .alert-success {
+        color: #2e7a9c;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    .alert-error {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+    /* Add more styles for other message types if needed */
+    </style>
+
+    {% if messages %}
+        <div id="message-container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endblock %}

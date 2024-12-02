@@ -1,0 +1,11 @@
+<h1>User Feedback</h1>
+<div>
+    {% for feedback in feedbacks %}
+        <p><strong>{{ feedback.user.username }}</strong> - Rating: {{ feedback.rating }}</p>
+        <p>{{ feedback.content }}</p>
+        <small>Posted on {{ feedback.created_at }}</small>
+        <hr>
+    {% empty %}
+        <p>No feedback available.</p>
+    {% endfor %}
+</div>
